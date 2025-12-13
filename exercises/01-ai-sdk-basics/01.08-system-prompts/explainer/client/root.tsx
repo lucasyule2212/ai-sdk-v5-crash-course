@@ -8,7 +8,7 @@ const App = () => {
   const { messages, sendMessage } = useChat({});
 
   const [input, setInput] = useState(
-    'Could you give me some financial advice?',
+    'In Brazil, Recife, whats the best way to buy my first apartment? I have 100,000 BRL saved up but didnt want to decapitalize my savings.',
   );
 
   return (

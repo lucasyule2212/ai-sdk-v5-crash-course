@@ -35,6 +35,7 @@ const App = () => {
             e.target as HTMLFormElement,
           );
           const file = formData.get('file') as File;
+          const fileUrl = await fileToDataURL(file);
 
           // TODO: figure out how to pass the file
           // _as well as the text_ to the
@@ -45,8 +46,17 @@ const App = () => {
           // convert the file to a data URL. This
           // will be useful!
           sendMessage({
-            // NOTE: 'parts' will be useful
-            text: input,
+            parts: [
+              {
+                type: 'text',
+                text: input,
+              },
+              {
+                type: 'file',
+                mediaType: file.type,
+                url: fileUrl,
+              },
+            ],
           });
 
           setInput('');

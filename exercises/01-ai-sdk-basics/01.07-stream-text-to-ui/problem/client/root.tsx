@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { ChatInput, Message, Wrapper } from './components.tsx';
 import './tailwind.css';
+import { useChat } from '@ai-sdk/react';
 
 const App = () => {
   // TODO: use the useChat hook to get the messages and sendMessage function
-  const { messages, sendMessage } = TODO;
+  const { messages, sendMessage } = useChat({})
+  // ? We don't need to pass the `transport` option because we are using the default transport endpoint which is `http://localhost:3000/api/chat`
 
   const [input, setInput] = useState(
     `What's the capital of France?`,
@@ -26,6 +28,10 @@ const App = () => {
         onSubmit={(e) => {
           e.preventDefault();
           // TODO: send the message
+          sendMessage({
+            text: input,
+          });
+          setInput('');
         }}
       />
     </Wrapper>
