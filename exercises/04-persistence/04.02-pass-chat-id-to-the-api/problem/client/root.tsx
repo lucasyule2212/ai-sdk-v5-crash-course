@@ -1,4 +1,4 @@
-import { useChat, type UIMessage } from '@ai-sdk/react';
+import { useChat } from '@ai-sdk/react';
 import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { ChatInput, Message, Wrapper } from './components.tsx';
@@ -10,7 +10,7 @@ const App = () => {
 
   console.log(searchParams.get('chatId'));
 
-  const { messages, sendMessage } = useChat({});
+  const { messages, sendMessage } = useChat({ id: searchParams.get('chatId') ?? crypto.randomUUID() });
 
   const [input, setInput] = useState('Hello, how are you?');
 
