@@ -8,7 +8,7 @@ const App = () => {
   const { messages, sendMessage } = useChat({});
 
   const [input, setInput] = useState(
-    'Give me the latest issues on the mattpocock/ts-reset repo.',
+    'Give me my repo list on GitHub ordered by the number of stars.',
   );
 
   return (

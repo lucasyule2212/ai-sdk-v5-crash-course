@@ -3,10 +3,11 @@ import {
   convertToModelMessages,
   stepCountIs,
   streamText,
+  type ToolSet,
   type UIMessage,
 } from 'ai';
 
-import { experimental_createMCPClient as createMCPClient } from 'ai';
+import { experimental_createMCPClient as createMCPClient } from '@ai-sdk/mcp';
 
 if (!process.env.GITHUB_PERSONAL_ACCESS_TOKEN) {
   throw new Error('GITHUB_PERSONAL_ACCESS_TOKEN is not set');
@@ -18,7 +19,7 @@ export const POST = async (req: Request): Promise<Response> => {
 
   const mcpClient = await createMCPClient({
     transport: {
-      type: 'sse',
+      type: 'http',
       url: 'https://api.githubcopilot.com/mcp',
       headers: {
         Authorization: `Bearer ${process.env.GITHUB_PERSONAL_ACCESS_TOKEN}`,
@@ -26,13 +27,15 @@ export const POST = async (req: Request): Promise<Response> => {
     },
   });
 
+  const tools = await mcpClient.tools() as ToolSet;
+
   const result = streamText({
     model: google('gemini-2.5-flash'),
     messages: convertToModelMessages(messages),
     system: `
       You are a helpful assistant that can use the GitHub API to interact with the user's GitHub account.
     `,
-    tools: await mcpClient.tools(),
+    tools,
     stopWhen: [stepCountIs(10)],
   });
 

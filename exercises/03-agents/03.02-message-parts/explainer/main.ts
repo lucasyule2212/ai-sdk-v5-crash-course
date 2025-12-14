@@ -118,6 +118,7 @@ const result = streamText({
 const stream = result.toUIMessageStream({
   onFinish: ({ messages }) => {
     console.log('--- ON FINISH ---');
+    // ? Useful for debugging and logging large objects `console.dir`
     console.dir(messages, { depth: null });
   },
 });
