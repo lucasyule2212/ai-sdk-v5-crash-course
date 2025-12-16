@@ -20,7 +20,7 @@ const testCases = [
 ] as const;
 
 // Change this to try a different test case
-const TEST_CASE_TO_TRY = 0;
+const TEST_CASE_TO_TRY = 2;
 
 const { input, url } = testCases[TEST_CASE_TO_TRY];
 
@@ -46,8 +46,30 @@ const result = await streamText({
     You are a helpful assistant that summarizes the content of a URL.
     </task-context>
 
+    <rules>
+    - Use the content of the website to answer the question.
+    - If the question is not related to the content of the website, say "I'm sorry, I can only answer questions about the content of the website."
+    - Use quotes from the content of the website to answer the question.
+    - Use paragraphs in your output.
+    - Return only the summary.
+    </rules>
+
+    <background-data>
+    Here is the content of the website:
+    <url>
+    ${url}
+    </url>
+    <content>
+    ${rawContent}
+    </content>
+    </background-data>
+
+    <conversation-history>
+    ${input}
+    </conversation-history>
+
     <the-ask>
-    Summarize the content of the website based on the conversation history.
+    Summarize the content of the website based on the conversation history. Return only the summary.
     </the-ask>
   `,
 });
