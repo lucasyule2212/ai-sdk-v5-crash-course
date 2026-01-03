@@ -54,11 +54,30 @@ evalite('TS Release Notes', {
     const capitalResult = await generateText({
       model: google('gemini-2.0-flash-lite'),
       prompt: `
+        <task-context>
         You are a helpful assistant that can answer questions about TypeScript releases.
+        </task-context>
 
         <question>
         ${input}
         </question>
+
+        <links>
+        ${links.map((link) => `<link>${link.title}: ${link.url}</link>`).join('\n')}
+        </links> 
+
+        <output-format>
+        Answer the question, with markdown links relevant to the question.
+        Format markdown links inline:
+          <markdown-link-example>
+          I really like [this website about cakes](https://www.cakes.com).
+          </markdown-link-example>
+          <markdown-link-example>
+          For more information, check out [this piece of reference material](https://www.cakes.com).
+          </markdown-link-example>
+
+        Reply only with the answer, with at most 500 characters.
+        </output-format>
       `,
     });
 
@@ -69,12 +88,16 @@ evalite('TS Release Notes', {
       name: 'Includes Markdown Links',
       scorer: ({ input, output, expected }) => {
         // TODO: check if the output includes markdown links
+        const markdownLinksFound = output.match(/\[.*?\]\((.*?)\)/g) ?? [];
+
+        return markdownLinksFound.length > 0 ? 1 : 0;
       },
     },
     {
       name: 'Output length',
       scorer: ({ input, output, expected }) => {
         // TODO: check if the output is less than 500 characters
+        return output.length < 500 ? 1 : 0;
       },
     },
   ],

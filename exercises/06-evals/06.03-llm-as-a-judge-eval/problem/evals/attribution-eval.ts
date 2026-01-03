@@ -27,6 +27,7 @@ D: The answer does not provide sources from the paper.
 
 export const attributionToChainOfThoughtPaper = createScorer<
   string,
+  string,
   string
 >({
   name: 'Attribution',
@@ -34,8 +35,27 @@ export const attributionToChainOfThoughtPaper = createScorer<
     const result = await generateObject({
       model: google('gemini-2.0-flash'),
       system: ATTRIBUTION_PROMPT,
-      messages: TODO, // TODO: Pass the chain of thought paper, the question and the answer given
-      schema: TODO, // TODO: Define the schema for the response
+      messages: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'file',
+              data: chainOfThoughtPaper,
+              mediaType: 'application/pdf',
+            },
+            {
+              type: 'text',
+              text: `Answer:\n${output}\n\nQuestion:\n${input}`,
+            },
+          ],
+        },
+      ],
+      schema: 
+      z.object({
+        feedback: z.string().describe('A short feedback message about the answer.'),
+        score: z.enum(['A', 'B', 'C', 'D']),
+      }), // TODO: Define the schema for the response
     });
 
     // NOTE: it's important to use a string-based score for the
