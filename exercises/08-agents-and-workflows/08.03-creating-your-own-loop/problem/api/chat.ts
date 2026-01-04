@@ -52,9 +52,9 @@ export const POST = async (req: Request): Promise<Response> => {
         type: 'start',
       });
 
-      let step = TODO; // TODO: keep track of the step we're on
-      let mostRecentDraft = TODO; // TODO: keep track of the most recent draft
-      let mostRecentFeedback = TODO; // TODO: keep track of the most recent feedback
+      let step = 0; // TODO: keep track of the step we're on
+      let mostRecentDraft = ''; // TODO: keep track of the most recent draft
+      let mostRecentFeedback = ''; // TODO: keep track of the most recent feedback
 
       // TODO: create a loop which:
       // 1. Writes a Slack message
@@ -62,6 +62,7 @@ export const POST = async (req: Request): Promise<Response> => {
       // 3. Saves the feedback in the variables above
       // 4. Increments the step variable
 
+      while (step < 2) {
       // TODO: once the loop is done, write the final Slack message
       // by streaming one large 'text-delta' part (see the reference
       // material for an example)
@@ -81,6 +82,7 @@ export const POST = async (req: Request): Promise<Response> => {
 
       for await (const part of writeSlackResult.textStream) {
         firstDraft += part;
+        mostRecentDraft = firstDraft;
 
         writer.write({
           type: 'data-slack-message',
@@ -108,12 +110,16 @@ export const POST = async (req: Request): Promise<Response> => {
 
       for await (const part of evaluateSlackResult.textStream) {
         feedback += part;
+        mostRecentFeedback = feedback;
 
         writer.write({
           type: 'data-slack-message-feedback',
           data: feedback,
           id: feedbackId,
         });
+      }
+
+      step++;
       }
 
       // Write final Slack message
@@ -125,10 +131,10 @@ export const POST = async (req: Request): Promise<Response> => {
           ${formatMessageHistory(messages)}
 
           First draft:
-          ${firstDraft}
+          ${mostRecentDraft}
 
           Previous feedback:
-          ${feedback}
+          ${mostRecentFeedback}
         `,
       });
 

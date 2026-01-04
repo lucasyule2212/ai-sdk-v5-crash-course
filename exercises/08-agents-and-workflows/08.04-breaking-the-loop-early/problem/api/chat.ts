@@ -2,9 +2,11 @@ import { google } from '@ai-sdk/google';
 import {
   createUIMessageStream,
   createUIMessageStreamResponse,
+  streamObject,
   streamText,
   type UIMessage,
 } from 'ai';
+import { z } from 'zod';
 
 export type MyMessage = UIMessage<
   unknown,
@@ -88,7 +90,7 @@ export const POST = async (req: Request): Promise<Response> => {
         // TODO: change this to streamObject, and get it to return
         // the feedback as a string, as well as whether we should
         // break the loop early (that the message is good enough)
-        const evaluateSlackResult = streamText({
+        const evaluateSlackResult = streamObject({
           model: google('gemini-2.0-flash-001'),
           system: EVALUATE_SLACK_MESSAGE_SYSTEM,
           prompt: `
@@ -101,20 +103,35 @@ export const POST = async (req: Request): Promise<Response> => {
             Previous feedback (if any):
             ${mostRecentFeedback}
           `,
+          schema: z.object({
+            feedback: z.string().optional().describe('The feedback about the most recent draft. Only return this if the draft is not good enough.'),
+            isGoodEnough: z.boolean().describe('Whether the most recent draft is good enough to stop the loop.'),
+          }),
         });
 
         const feedbackId = crypto.randomUUID();
 
         let feedback = '';
 
-        for await (const part of evaluateSlackResult.textStream) {
-          feedback += part;
+        for await (const part of evaluateSlackResult.partialObjectStream) {
+          if (part.feedback) {
+            feedback += part.feedback;
+            writer.write({
+              type: 'data-slack-message-feedback',
+              data: part.feedback,
+              id: feedbackId,
+            });
+          }
+        }
 
-          writer.write({
-            type: 'data-slack-message-feedback',
-            data: feedback,
-            id: feedbackId,
-          });
+        const finalEvaluationObject = await evaluateSlackResult.object;
+
+        if (finalEvaluationObject.isGoodEnough) {
+          break;
+        }
+
+        if (!finalEvaluationObject.feedback) {
+          throw new Error('No feedback provided by the LLM.');
         }
 
         mostRecentFeedback = feedback;
