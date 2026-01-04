@@ -12,9 +12,9 @@ const App = () => {
 
   // TODO: Update this to handle the new
   // data-suggestions part
-  const latestSuggestion = messages[
+  const latestSuggestions = messages[
     messages.length - 1
-  ]?.parts.find((part) => part.type === 'data-suggestion')?.data;
+  ]?.parts.find((part) => part.type === 'data-suggestions')?.data;
 
   return (
     <Wrapper>
@@ -28,10 +28,10 @@ const App = () => {
       <ChatInput
         // TODO: Update this to handle the new
         // data-suggestions part
-        suggestion={
+        suggestions={
           messages.length === 0
-            ? 'What is the capital of France?'
-            : latestSuggestion
+            ? ['What is the capital of France?', 'What is the capital of Germany?']
+            : latestSuggestions
         }
         input={input}
         onChange={(text) => setInput(text)}
