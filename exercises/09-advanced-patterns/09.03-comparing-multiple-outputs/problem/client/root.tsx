@@ -6,7 +6,7 @@ import './tailwind.css';
 import type { MyMessage } from '../api/chat.ts';
 
 const App = () => {
-  const { messages, sendMessage } = useChat<MyMessage>({});
+  const { messages, sendMessage, setMessages } = useChat<MyMessage>({});
 
   const [input, setInput] = useState(
     `How many R's are in the word strawberry?`,
@@ -48,16 +48,24 @@ const App = () => {
 
             // TODO: Use messages.slice to take all the messages before
             // the current message.
-            const newMessages = TODO;
+            const newMessages = messages.slice(0, index);
 
             // TODO: Push a new message to the newMessages array that
             // is a copy of the current message, but with the data-output
             // parts replaced with a text part.
-            newMessages.push(TODO);
+            newMessages.push({
+              ...message,
+              parts: [
+                {
+                  type: 'text',
+                  text: part.data.text,
+                },
+              ],
+            });
 
             // TODO: Set the new messages array as the messages in useChat
             // (useChat returns a setMessages function)
-            TODO;
+            setMessages(newMessages);
           }}
         />
       ))}
